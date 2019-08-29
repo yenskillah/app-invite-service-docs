@@ -1,0 +1,343 @@
+basePath: /api/v1
+definitions:
+  main.AccessToken:
+    properties:
+      accessToken:
+        type: string
+    type: object
+  main.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+  main.Invite:
+    properties:
+      clientCode:
+        type: string
+      clientName:
+        type: string
+      dateCreated:
+        type: string
+      dateExpiry:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      token:
+        type: string
+      userId:
+        type: integer
+    type: object
+  main.InviteToken:
+    properties:
+      token:
+        type: string
+    type: object
+  main.SuccessResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: success
+        type: string
+    type: object
+host: 127.0.0.1:8888
+info:
+  contact:
+    email: sonnysidramos@gmail.com
+  description: This an API service that will facilitate the invite token generation
+    and validation for the Catalyst Experience App.
+  license: {}
+  title: App Invite Service
+  version: "1.0"
+paths:
+  /authenticate:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Request for an Admin Access Token to access the Admin endpoints
+      parameters:
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.AccessToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Admin Access Token
+  /dbcheck:
+    get:
+      consumes:
+      - application/json
+      description: Database connection  health checking
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Health Check
+  /httpcheck:
+    get:
+      consumes:
+      - application/json
+      description: HTTP service health checking
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SuccessResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Health Check
+  /invite:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Generate a new app invite token
+      parameters:
+      - description: Client Code
+        in: formData
+        name: clientCode
+        required: true
+        type: string
+      - description: Client Name
+        in: formData
+        name: clientName
+        required: true
+        type: string
+      - description: Admin Access Token
+        in: header
+        name: x-admin-access-token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.InviteToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Token Invites
+  /invite/{token}:
+    delete:
+      consumes:
+      - application/json
+      description: Recall an app token
+      parameters:
+      - description: Invite Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Admin Access Token
+        in: header
+        name: x-admin-access-token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Token Invites
+    get:
+      consumes:
+      - application/json
+      description: Get an Invite's Information
+      parameters:
+      - description: Invite Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Admin Access Token
+        in: header
+        name: x-admin-access-token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Invite'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Token Invites
+    patch:
+      consumes:
+      - application/json
+      description: Validate an app token
+      parameters:
+      - description: Invite Token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Token Invites
+  /invites:
+    get:
+      consumes:
+      - application/json
+      description: Get All Invites Information
+      parameters:
+      - description: Invite Token Status
+        enum:
+        - active
+        - used
+        - inactive
+        in: query
+        name: status
+        type: string
+      - description: Admin Access Token
+        in: header
+        name: x-admin-access-token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Invite'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      tags:
+      - Token Invites
+swagger: "2.0"
